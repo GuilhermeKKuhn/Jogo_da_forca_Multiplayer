@@ -3,9 +3,7 @@ package org.example;
 public class Player {
     private String nome;
     private String ip;
-
     private int vidas;
-
     private double pontos;
 
     public Player(String nome, String ip) {
