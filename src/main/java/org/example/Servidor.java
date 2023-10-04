@@ -20,7 +20,7 @@ public class Servidor {
             System.out.println("Um cliente se conectou");
 
             //Como teremos vários
-            gerenciadorCliente gc = new gerenciadorCliente(conexao);
+            GerenciadorCliente gc = new GerenciadorCliente(conexao);
             /*Um thread pode receber uma objeto que contenha a interface RUNNABLE, a thread ficará
              * responsável por rodar essa instância de forma separada e independente do resto do código*/
             Thread t = new Thread(gc);

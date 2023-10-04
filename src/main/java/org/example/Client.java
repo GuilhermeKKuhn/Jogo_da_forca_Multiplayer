@@ -10,7 +10,8 @@ public class Client {
     private BufferedReader receber;
     private BufferedWriter enviar;
     private Socket socket;
-    
+
+
 
     public Client(Player player, Socket socket) {
         try{
@@ -28,14 +29,14 @@ public class Client {
     public void enviarMensagem(){
         try{
             //Quando o enviar mensagem for executado pela primeira vez
-            enviar.write(username);
+            enviar.write(player.getNome());
             enviar.newLine();
             enviar.flush();
 
             Scanner scan = new Scanner(System.in);
             while(socket.isConnected()){
                 String msg = scan.nextLine();
-                enviar.write(username +": "+ msg);
+                enviar.write(player.getNome() +": "+ msg);
                 enviar.newLine();
                 enviar.flush();
             }
