@@ -24,7 +24,7 @@ public class GerenciadorCliente implements Runnable{
     //Buffers de transportes tanto de envio como de recebimento
     private BufferedReader receber;
     private BufferedWriter enviar;
-    public List<String> jogadores = new ArrayList<>(List.of("Lucas", "Alexandre", "Guilherme"));
+
     private String username;
 
     public GerenciadorCliente(Socket socket){
@@ -35,6 +35,7 @@ public class GerenciadorCliente implements Runnable{
             this.enviar = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
             //Ao atribuir um valor para a String username, ela será lida pelo buffer
             this.username = receber.readLine();
+
             clientes.add(this);
         }catch (IOException e){
             fechaTudo(socket, receber, enviar);
@@ -52,12 +53,7 @@ public class GerenciadorCliente implements Runnable{
             try{
                 String msg = receber.readLine();
 
-                for(String j : jogadores){
-                    if(msg.equals(j)){
-                        msg += this.username +  " logou";
-                        transmitir(msg);
-                    }
-                }
+
 
 //                if (msg.equals("EASY")) {
 //                    palavra.dificudade.add(Difficulty.EASY);
