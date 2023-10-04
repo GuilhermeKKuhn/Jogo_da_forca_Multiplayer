@@ -34,6 +34,7 @@ public class Client {
             enviar.flush();
 
 
+
             // thread fazer
             Scanner scan = new Scanner(System.in);
             while(socket.isConnected()){
@@ -87,77 +88,75 @@ public class Client {
     public static void main(String[] args) throws IOException {
         Scanner scan = new Scanner(System.in);
         boolean flag = true;
+
+
         while(flag){
             System.out.println("Digite seu nome de usuário: ");
             String username = scan.nextLine();
-            Player player = new Player();
-            for(String p: player.jogadores){
-                if(p.equals(username)){
-                        Palavra palavra = new Palavra();
-                        boolean flagDifi = true;
-                        do {
-                            String dificuldade = null;
-                            try{
-                                System.out.println("escolha uma dificuldade");
-                                System.out.println("1 - Facil");
-                                System.out.println("2 - medio");
-                                System.out.println("3 - dificil");
-                                dificuldade = scan.next();
-                                switch (dificuldade) {
-                                    case "1":
-                                        palavra.dificudade.add(Difficulty.EASY);
-                                        flagDifi = false;
-                                        break;
-                                    case "2":
-                                        palavra.dificudade.add(Difficulty.MEDIUM);
-                                        flagDifi = false;
-                                        break;
-                                    case "3":
-                                        palavra.dificudade.add(Difficulty.HARD);
-                                        flagDifi = false;
-                                        break;
-                                    default:
-                                        System.out.println("Dificuldade invalida");
-                                        flagDifi = true;
-                                        break;
-                                }
-                            }catch (Exception e){
-                                dificuldade = null;
-                                flagDifi = true;
-                                System.out.println("opção invalida");
-                            }
-
-                        }while(flagDifi);
-
-                        boolean flagPlay = true;
-                        do{
-                            String play = null;
-                            System.out.println("1 - Para jogar.");
-                            System.out.println("2 - para esperar outro jogador");
-                            play = scan.next();
-                            switch (play){
-                                case "1" :
-                                    flag = false;
-                                    Socket socket = new Socket("localHost", 8080);
-                                    Client cliente = new Client(username, socket);
-                                    cliente.receberMsg();//Blpoco com thread, sempre irá executar a parte
-                                    cliente.enviarMensagem();
-                                    flagPlay = false;
-                                    break;
-                                case "2":
-                                    System.out.println(" 2 - Aguardando");
-                                    flagPlay = true;
-                                    break;
-                                default:
-                                    System.out.println(" Valor invalido");
-                                    flagPlay = true;
-                                    break;
-                            }
-                        }while(flagPlay);
+            Socket socket = new Socket("localHost", 8080);
+            Client cliente = new Client(username, socket);
+            cliente.receberMsg();//Blpoco com thread, sempre irá executar a parte
+            cliente.enviarMensagem();
 
 
+            boolean flagDifi = true;
+            do {
+                String dificuldade = null;
+                try{
+                    System.out.println("escolha uma dificuldade");
+                    System.out.println("1 - Facil");
+                    System.out.println("2 - medio");
+                    System.out.println("3 - dificil");
+                    dificuldade = scan.next();
+                    switch (dificuldade) {
+                        case "1":
+
+                            flagDifi = false;
+                            break;
+                        case "2":
+
+                            flagDifi = false;
+                            break;
+                        case "3":
+
+                            flagDifi = false;
+                            break;
+                        default:
+                            System.out.println("Dificuldade invalida");
+                            flagDifi = true;
+                            break;
+                    }
+                }catch (Exception e){
+                    dificuldade = null;
+                    flagDifi = true;
+                    System.out.println("opção invalida");
                 }
-            }
+            }while(flagDifi);
+            boolean flagPlay = true;
+            do{
+                String play = null;
+                System.out.println("1 - Para jogar.");
+                System.out.println("2 - para esperar outro jogador");
+                play = scan.next();
+                switch (play){
+                    case "1" :
+                        flag = false;
+
+                        flagPlay = false;
+                        break;
+                    case "2":
+                        System.out.println(" 2 - Aguardando");
+                        flagPlay = true;
+                        break;
+                    default:
+                        System.out.println(" Valor invalido");
+                        flagPlay = true;
+                        break;
+                }
+            }while(flagPlay);
+
+
+
             System.out.println("usuario invalido!");
         }
 

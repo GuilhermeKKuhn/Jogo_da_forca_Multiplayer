@@ -14,13 +14,17 @@ public class GerenciadorCliente implements Runnable{
     public static ArrayList<GerenciadorCliente> clientes = new ArrayList<>();
 
     public Forca forca = new Forca();
+
+    public Palavra palavra = new Palavra();
+
+
     public static String ultimoJogado;
 
 
     //Buffers de transportes tanto de envio como de recebimento
     private BufferedReader receber;
     private BufferedWriter enviar;
-
+    public List<String> jogadores = new ArrayList<>(List.of("Lucas", "Alexandre", "Guilherme"));
     private String username;
 
     public GerenciadorCliente(Socket socket){
@@ -48,18 +52,31 @@ public class GerenciadorCliente implements Runnable{
             try{
                 String msg = receber.readLine();
 
-                if (msg.startsWith("DIF=")) {
-                    this.forca.setDifficulty();
+                for(String j : jogadores){
+                    if(msg.equals(j)){
+                        msg += this.username +  " logou";
+                        transmitir(msg);
+                    }
                 }
 
+//                if (msg.equals("EASY")) {
+//                    palavra.dificudade.add(Difficulty.EASY);
+//                }else if (msg.equals("MEDIUM")) {
+//                    palavra.dificudade.add(Difficulty.MEDIUM);
+//                }else if(msg.equals("HARD")){
+//                    palavra.dificudade.add(Difficulty.HARD);
+//                }
+//
+//                msg +=  " foi escolhida por " +this.username;
 
-                transmitir(msg);
+//                transmitir(msg);
             }catch(IOException e){
                 fechaTudo(socket, receber, enviar);
             }
         }
     }
 
+    /// se nao for o usuario a vez nao passa
     private void transmitir(String msg) {
         //Para cada cliente no loop do while no método RUN cria-se uma interação
         for(GerenciadorCliente cliente : clientes){

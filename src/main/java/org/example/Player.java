@@ -8,7 +8,7 @@ public class Player {
     private String ip;
     private int vidas;
     private double pontos;
-    List<String> jogadores = new ArrayList<>(List.of("Lucas", "Alexandre", "Guilherme"));
+
 
     public Player(String nome, String ip) {
         this.nome = nome;
