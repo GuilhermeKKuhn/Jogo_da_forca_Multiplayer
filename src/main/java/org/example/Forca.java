@@ -6,11 +6,20 @@ import java.util.Random;
 
 public class Forca {
 
+    private int erros = 0;
 
+    public int getErros() {
+        return erros;
+    }
+
+    public void setErros(int erros) {
+        this.erros = erros;
+    }
 
     public void setPalavras(Difficulty diff, Palavra p){
 
         ArrayList<String> palavras = new ArrayList<>();
+
 
         // verifica a dificudade e o array da mesma e add na lista
         if(diff.equals(Difficulty.EASY)) {
@@ -52,7 +61,7 @@ public class Forca {
             //adiciona na lista de letras convertendo em char
             p.letrasCorretas.add(String.valueOf(p.getPalavraCorreta().charAt(i)));
             //adiciona na lista acertada o espaco correspondente
-            p.letrasCorretas.add( "_ ");
+            p.chutesAcertados.add( "_ ");
         }
 
     }
@@ -66,14 +75,29 @@ public class Forca {
             palavra.dificudade.remove(num);
     }
 
-    public String getForca(int erros, Palavra p){
-        PrintForca forca = new PrintForca();
-        String completa = forca.validaForca(erros);
+//    public String getForca(int erros, Palavra p){
+//        PrintForca forca = new PrintForca();
+//        String completa = forca.validaForca(erros);
+//
+//        for(int i = 0; i < p.letrasCorretas.size(); i++){
+//            completa += p.letrasCorretas.get(i);
+//        }
+//        return  completa;
+//    }
 
-        for(int i = 0; i < p.letrasCorretas.size(); i++){
-            completa += p.letrasCorretas.get(i);
+    public String getForca(Palavra p){
+        //inicia a forca
+        PrintForca prtForca = new PrintForca();
+        // chama forca para concatenar com as letras acertadas
+        String letras  = prtForca.validaForca(this.getErros());
+
+        // for percorendo letras acertadas para adicionar na forca
+        for(int i =0; i < p.letrasCorretas.size();i++){
+            //concatena
+            letras += p.chutesAcertados.get(i);
         }
-        return  completa;
+        //retorna a forca ja concatenada com as letras
+        return letras;
     }
 
 }

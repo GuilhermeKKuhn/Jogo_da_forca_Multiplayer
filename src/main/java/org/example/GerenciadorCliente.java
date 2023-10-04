@@ -3,6 +3,7 @@ package org.example;
 import java.io.*;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.List;
 
 public class GerenciadorCliente implements Runnable{
     //Como não é servidor podemos usar o Socket socket
@@ -11,6 +12,10 @@ public class GerenciadorCliente implements Runnable{
     ficar de olho em cada cliente, para quando um cliente mandar uma mensagem possamos percorrer o array e
     mandar uma mensagem para todos os outros clientes do array*/
     public static ArrayList<GerenciadorCliente> clientes = new ArrayList<>();
+
+    public Forca forca = new Forca();
+    public static String ultimoJogado;
+
 
     //Buffers de transportes tanto de envio como de recebimento
     private BufferedReader receber;
@@ -38,10 +43,16 @@ public class GerenciadorCliente implements Runnable{
         Porém, precisamos ser capaz de continuar a enviar a mensagem e ainda assim ficar ouvindo,
         para isso, precisamos trabalhar com Threads, do qual são capazes de executar o nosso
         código em blocos*/
-        String msg;
+        ;
         while(socket.isConnected()){
             try{
-                msg = receber.readLine();
+                String msg = receber.readLine();
+
+                if (msg.startsWith("DIF=")) {
+                    this.forca.setDifficulty();
+                }
+
+
                 transmitir(msg);
             }catch(IOException e){
                 fechaTudo(socket, receber, enviar);
@@ -58,6 +69,7 @@ public class GerenciadorCliente implements Runnable{
                     cliente.enviar.newLine();/*Quando o cliente apertar "enter" o programa entende que a
                     mensagem foi finalizada. Dessa forma, o buffer se adapta ao tamanho da mensagem e
                     não fica sobrecarregado e depois de enviado ele se esvazia automaticamente*/
+
                     cliente.enviar.flush();//Assim garantimos que o buffer será esvaziado
                 }
             }catch (IOException e){

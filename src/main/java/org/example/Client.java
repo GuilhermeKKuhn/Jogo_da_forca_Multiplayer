@@ -2,6 +2,8 @@ package org.example;
 
 import java.io.*;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
 public class Client {
@@ -10,8 +12,6 @@ public class Client {
     private BufferedReader receber;
     private BufferedWriter enviar;
     private Socket socket;
-
-
 
     public Client(String player, Socket socket) {
         try{
@@ -33,6 +33,8 @@ public class Client {
             enviar.newLine();
             enviar.flush();
 
+
+            // thread fazer
             Scanner scan = new Scanner(System.in);
             while(socket.isConnected()){
                 String msg = scan.nextLine();
@@ -40,6 +42,9 @@ public class Client {
                 enviar.newLine();
                 enviar.flush();
             }
+
+
+
         }catch(IOException e){
             fechaTudo(socket, receber, enviar);
         }
@@ -117,17 +122,40 @@ public class Client {
                                         break;
                                 }
                             }catch (Exception e){
-                                System.out.println("opção invalida");
-                                flagDifi = true;
                                 dificuldade = null;
+                                flagDifi = true;
+                                System.out.println("opção invalida");
                             }
 
                         }while(flagDifi);
-                    flag = false;
-                    Socket socket = new Socket("192.168.22.69", 8080);
-                    Client cliente = new Client(username, socket);
-                    cliente.receberMsg();//Bloco com thread, sempre irá executar a parte
-                    cliente.enviarMensagem();
+
+                        boolean flagPlay = true;
+                        do{
+                            String play = null;
+                            System.out.println("1 - Para jogar.");
+                            System.out.println("2 - para esperar outro jogador");
+                            play = scan.next();
+                            switch (play){
+                                case "1" :
+                                    flag = false;
+                                    Socket socket = new Socket("localHost", 8080);
+                                    Client cliente = new Client(username, socket);
+                                    cliente.receberMsg();//Blpoco com thread, sempre irá executar a parte
+                                    cliente.enviarMensagem();
+                                    flagPlay = false;
+                                    break;
+                                case "2":
+                                    System.out.println(" 2 - Aguardando");
+                                    flagPlay = true;
+                                    break;
+                                default:
+                                    System.out.println(" Valor invalido");
+                                    flagPlay = true;
+                                    break;
+                            }
+                        }while(flagPlay);
+
+
                 }
             }
             System.out.println("usuario invalido!");
