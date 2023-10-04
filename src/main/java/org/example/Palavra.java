@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Palavra {
-    private String palavraCorreta;
+    public String palavraCorreta;
     public ArrayList<String> letrasCorretas = new ArrayList<>();
     public ArrayList<String> chutes = new ArrayList<>();
     public ArrayList<String> acertos = new ArrayList<>();

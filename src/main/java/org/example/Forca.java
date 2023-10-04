@@ -67,29 +67,20 @@ public class Forca {
     }
     public void setDifficulty(Palavra palavra){
             //inicia um random e sorteia um valor no dentre o tamanho
-            Random random = new Random();
-            int num = random.nextInt(palavra.dificudade.size());
+//            Random random = new Random();
+//            int num = random.nextInt(palavra.dificudade.size());
 
             // define palavra completa com base no random
-            this.setPalavras(palavra.dificudade.get(num),palavra);
-            palavra.dificudade.remove(num);
+//            this.setPalavras(palavra.dificudade.get(num),palavra);
+//            palavra.dificudade.remove(num);
+            this.setPalavras(Difficulty.EASY,palavra);
     }
 
-//    public String getForca(int erros, Palavra p){
-//        PrintForca forca = new PrintForca();
-//        String completa = forca.validaForca(erros);
-//
-//        for(int i = 0; i < p.letrasCorretas.size(); i++){
-//            completa += p.letrasCorretas.get(i);
-//        }
-//        return  completa;
-//    }
-
-    public String getForca(Palavra p){
+    public String getForca(Palavra p, int erros){
         //inicia a forca
         PrintForca prtForca = new PrintForca();
         // chama forca para concatenar com as letras acertadas
-        String letras  = prtForca.validaForca(this.getErros());
+        String letras  = prtForca.validaForca(erros);
 
         // for percorendo letras acertadas para adicionar na forca
         for(int i =0; i < p.letrasCorretas.size();i++){
@@ -98,6 +89,64 @@ public class Forca {
         }
         //retorna a forca ja concatenada com as letras
         return letras;
+    }
+
+    private String buscaChutes(Palavra p){
+        String msg = "Chutes realizados ";
+        for(String v : p.chutes){
+            msg += v + " - ";
+        }
+        return msg;
+    }
+
+
+    public String addChute(String chute, Palavra p){
+        String msg = "";
+        if(chute.length() > 1){
+            return msg = "Chute invalido";
+        }
+        boolean existe = false;
+        if(p.chutes.size() > 0){
+            for(String v: p.chutes) {
+                if(v.equals(chute)) {
+                    existe = true;
+                }
+            }
+        }
+        if(existe == true){
+            msg = "Esse chute ja foi realizado :" ;
+            return msg;
+        }else{
+            p.chutes.add(chute);
+            if(atualizaLetras(chute,p)){
+                msg = "ACERTOUuu \n" + buscaChutes(p);
+            }else{
+                setErros(getErros()+1);
+                msg = "ERROUuu \n" + buscaChutes(p) + "\n" ;
+
+            }
+        }
+        return msg;
+    }
+    private Boolean atualizaLetras(String letra, Palavra p){
+        int cont = 0;
+        Boolean flag = false;
+        for(String v: p.letrasCorretas){
+            if(v.equals(letra)){
+                p.chutesAcertados.set(cont, letra + ' ');
+                flag = true;
+            }
+            cont++;
+        }
+        return flag;
+    }
+
+    public boolean palavraFinal(Palavra p){
+        String palavra = "";
+        for(String v : p.letrasCorretas){
+            palavra += v.replace(" ","");
+        }
+        return palavra.equals(p.palavraCorreta) ? true : false;
     }
 
 }

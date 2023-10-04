@@ -18,8 +18,8 @@ public class GerenciadorCliente implements Runnable{
     public Palavra palavra = new Palavra();
 
 
-    public static String ultimoJogado;
-
+    public static String ultimoJogado = "Lucas";
+    public String forcaAtual;
 
     //Buffers de transportes tanto de envio como de recebimento
     private BufferedReader receber;
@@ -35,7 +35,7 @@ public class GerenciadorCliente implements Runnable{
             this.enviar = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
             //Ao atribuir um valor para a String username, ela será lida pelo buffer
             this.username = receber.readLine();
-
+            this.forca.setDifficulty(palavra);
             clientes.add(this);
         }catch (IOException e){
             fechaTudo(socket, receber, enviar);
@@ -52,20 +52,13 @@ public class GerenciadorCliente implements Runnable{
         while(socket.isConnected()){
             try{
                 String msg = receber.readLine();
+                msg = this.forca.addChute(msg,this.palavra);
 
 
+                if(username.equals(ultimoJogado)){
+                    transmitir(forcaAtual + "\n" + username + ": " +msg);
+                }
 
-//                if (msg.equals("EASY")) {
-//                    palavra.dificudade.add(Difficulty.EASY);
-//                }else if (msg.equals("MEDIUM")) {
-//                    palavra.dificudade.add(Difficulty.MEDIUM);
-//                }else if(msg.equals("HARD")){
-//                    palavra.dificudade.add(Difficulty.HARD);
-//                }
-//
-//                msg +=  " foi escolhida por " +this.username;
-
-//                transmitir(msg);
             }catch(IOException e){
                 fechaTudo(socket, receber, enviar);
             }
@@ -77,14 +70,13 @@ public class GerenciadorCliente implements Runnable{
         //Para cada cliente no loop do while no método RUN cria-se uma interação
         for(GerenciadorCliente cliente : clientes){
             try{
-                if(!cliente.username.equals(username)){//Ignora o cliente que enviou a mensagem
-                    cliente.enviar.write(msg);//Serealização da mensagem e envio pela rede
-                    cliente.enviar.newLine();/*Quando o cliente apertar "enter" o programa entende que a
-                    mensagem foi finalizada. Dessa forma, o buffer se adapta ao tamanho da mensagem e
-                    não fica sobrecarregado e depois de enviado ele se esvazia automaticamente*/
+                this.forcaAtual = forca.getForca(palavra, forca.getErros());
+                cliente.enviar.write(msg);//Serealização da mensagem e envio pela rede
+                cliente.enviar.newLine();/*Quando o cliente apertar "enter" o programa entende que a
+                mensagem foi finalizada. Dessa forma, o buffer se adapta ao tamanho da mensagem e
+                não fica sobrecarregado e depois de enviado ele se esvazia automaticamente*/
+                cliente.enviar.flush();//Assim garantimos que o buffer será esvaziado
 
-                    cliente.enviar.flush();//Assim garantimos que o buffer será esvaziado
-                }
             }catch (IOException e){
                 fechaTudo(socket, receber, enviar);
             }

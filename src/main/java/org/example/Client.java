@@ -7,15 +7,15 @@ import java.util.List;
 import java.util.Scanner;
 
 public class Client {
-
-    Player player = new Player();
     private BufferedReader receber;
     private BufferedWriter enviar;
     private Socket socket;
 
-    public Client(String player, Socket socket) {
+    private String user;
+
+    public Client(String user, Socket socket) {
         try{
-            this.player.setNome(player);
+            this.user = user;
             this.socket = socket;
             this.receber = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             this.enviar = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
@@ -29,7 +29,7 @@ public class Client {
     public void enviarMensagem(){
         try{
             //Quando o enviar mensagem for executado pela primeira vez
-            enviar.write(player.getNome());
+            enviar.write(user);
             enviar.newLine();
             enviar.flush();
 
@@ -39,7 +39,8 @@ public class Client {
             Scanner scan = new Scanner(System.in);
             while(socket.isConnected()){
                 String msg = scan.nextLine();
-                enviar.write(player.getNome() +" : "+ msg);
+
+                enviar.write(msg);
                 enviar.newLine();
                 enviar.flush();
             }
