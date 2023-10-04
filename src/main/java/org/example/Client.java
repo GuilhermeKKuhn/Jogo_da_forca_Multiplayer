@@ -13,9 +13,9 @@ public class Client {
 
 
 
-    public Client(Player player, Socket socket) {
+    public Client(String player, Socket socket) {
         try{
-            this.player = player;
+            this.player.setNome(player);
             this.socket = socket;
             this.receber = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             this.enviar = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
@@ -36,7 +36,7 @@ public class Client {
             Scanner scan = new Scanner(System.in);
             while(socket.isConnected()){
                 String msg = scan.nextLine();
-                enviar.write(player.getNome() +": "+ msg);
+                enviar.write(player.getNome() +" : "+ msg);
                 enviar.newLine();
                 enviar.flush();
             }
@@ -81,11 +81,58 @@ public class Client {
 
     public static void main(String[] args) throws IOException {
         Scanner scan = new Scanner(System.in);
-        System.out.println("Digite seu nome de usuário: ");
-        String username = scan.nextLine();
-        Socket socket = new Socket("localhost", 8080);
-        Client cliente = new Client(username, socket);
-        cliente.receberMsg();//Bloco com thread, sempre irá executar a parte
-        cliente.enviarMensagem();
+        boolean flag = true;
+        while(flag){
+            System.out.println("Digite seu nome de usuário: ");
+            String username = scan.nextLine();
+            Player player = new Player();
+            for(String p: player.jogadores){
+                if(p.equals(username)){
+                        Palavra palavra = new Palavra();
+                        boolean flagDifi = true;
+                        do {
+                            String dificuldade = null;
+                            try{
+                                System.out.println("escolha uma dificuldade");
+                                System.out.println("1 - Facil");
+                                System.out.println("2 - medio");
+                                System.out.println("3 - dificil");
+                                dificuldade = scan.next();
+                                switch (dificuldade) {
+                                    case "1":
+                                        palavra.dificudade.add(Difficulty.EASY);
+                                        flagDifi = false;
+                                        break;
+                                    case "2":
+                                        palavra.dificudade.add(Difficulty.MEDIUM);
+                                        flagDifi = false;
+                                        break;
+                                    case "3":
+                                        palavra.dificudade.add(Difficulty.HARD);
+                                        flagDifi = false;
+                                        break;
+                                    default:
+                                        System.out.println("Dificuldade invalida");
+                                        flagDifi = true;
+                                        break;
+                                }
+                            }catch (Exception e){
+                                System.out.println("opção invalida");
+                                flagDifi = true;
+                                dificuldade = null;
+                            }
+
+                        }while(flagDifi);
+                    flag = false;
+                    Socket socket = new Socket("192.168.22.69", 8080);
+                    Client cliente = new Client(username, socket);
+                    cliente.receberMsg();//Bloco com thread, sempre irá executar a parte
+                    cliente.enviarMensagem();
+                }
+            }
+            System.out.println("usuario invalido!");
+        }
+
+
     }
 }

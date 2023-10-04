@@ -10,6 +10,8 @@ public class Palavra {
     public ArrayList<String> acertos = new ArrayList<>();
     public ArrayList<String> chutesAcertados = new ArrayList<>();
 
+    public ArrayList<Difficulty> dificudade = new ArrayList<>();
+
     public Palavra() {
     }
 
