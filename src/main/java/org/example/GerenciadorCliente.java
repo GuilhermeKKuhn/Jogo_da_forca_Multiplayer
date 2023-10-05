@@ -18,8 +18,8 @@ public class GerenciadorCliente implements Runnable{
     public Palavra palavra = new Palavra();
 
 
-    public static String ultimoJogado = "Lucas";
-    public String forcaAtual;
+    public static String ultimoJogado;
+    public static String forcaAtual;
 
     //Buffers de transportes tanto de envio como de recebimento
     private BufferedReader receber;
@@ -52,12 +52,16 @@ public class GerenciadorCliente implements Runnable{
         while(socket.isConnected()){
             try{
                 String msg = receber.readLine();
+
                 msg = this.forca.addChute(msg,this.palavra);
-
-
-                if(username.equals(ultimoJogado)){
-                    transmitir(forcaAtual + "\n" + username + ": " +msg);
+                if(forca.palavraFinal(palavra)){
+                    msg = "GANHOU";
                 }
+                this.forcaAtual = forca.getForca(palavra, forca.getErros());
+
+//                if(username.equals(ultimoJogado)){
+                    transmitir(forcaAtual + "\n" + username + ": " + msg);
+//                }
 
             }catch(IOException e){
                 fechaTudo(socket, receber, enviar);
@@ -70,7 +74,8 @@ public class GerenciadorCliente implements Runnable{
         //Para cada cliente no loop do while no método RUN cria-se uma interação
         for(GerenciadorCliente cliente : clientes){
             try{
-                this.forcaAtual = forca.getForca(palavra, forca.getErros());
+                ultimoJogado = username;
+
                 cliente.enviar.write(msg);//Serealização da mensagem e envio pela rede
                 cliente.enviar.newLine();/*Quando o cliente apertar "enter" o programa entende que a
                 mensagem foi finalizada. Dessa forma, o buffer se adapta ao tamanho da mensagem e

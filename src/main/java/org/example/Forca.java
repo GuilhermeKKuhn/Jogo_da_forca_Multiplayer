@@ -67,13 +67,13 @@ public class Forca {
     }
     public void setDifficulty(Palavra palavra){
             //inicia um random e sorteia um valor no dentre o tamanho
-//            Random random = new Random();
-//            int num = random.nextInt(palavra.dificudade.size());
+            Random random = new Random();
+            int num = random.nextInt(palavra.dificudade.size());
 
             // define palavra completa com base no random
-//            this.setPalavras(palavra.dificudade.get(num),palavra);
-//            palavra.dificudade.remove(num);
-            this.setPalavras(Difficulty.EASY,palavra);
+            this.setPalavras(palavra.dificudade.get(num),palavra);
+            palavra.dificudade.remove(num);
+//            this.setPalavras(Difficulty.EASY,palavra);
     }
 
     public String getForca(Palavra p, int erros){
