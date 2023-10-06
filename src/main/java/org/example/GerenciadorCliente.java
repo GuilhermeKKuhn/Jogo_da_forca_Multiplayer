@@ -4,28 +4,31 @@ import java.io.*;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class GerenciadorCliente implements Runnable{
     //Como não é servidor podemos usar o Socket socket
     private Socket socket;
-    /*Criamos um array para cada instância dessa classe o objetivo principal desse array é
-    ficar de olho em cada cliente, para quando um cliente mandar uma mensagem possamos percorrer o array e
-    mandar uma mensagem para todos os outros clientes do array*/
+
+
     public static ArrayList<GerenciadorCliente> clientes = new ArrayList<>();
+    static Semaphore semaforo = new Semaphore(1);
 
     public Forca forca = new Forca();
 
     public Palavra palavra = new Palavra();
 
-
     public static String ultimoJogado;
     public static String forcaAtual;
 
-    //Buffers de transportes tanto de envio como de recebimento
     private BufferedReader receber;
     private BufferedWriter enviar;
 
     private String username;
+
+
 
     public GerenciadorCliente(Socket socket){
         try{
@@ -36,7 +39,6 @@ public class GerenciadorCliente implements Runnable{
             //Ao atribuir um valor para a String username, ela será lida pelo buffer
             this.username = receber.readLine();
             this.forca.setDifficulty(palavra);
-            clientes.add(this);
         }catch (IOException e){
             fechaTudo(socket, receber, enviar);
         }
@@ -44,23 +46,36 @@ public class GerenciadorCliente implements Runnable{
 
     @Override
     public void run() {
-        /*Toda vez que estamos ouvindo a mensagem nosso programa bloqueia o restante do código.
-        Porém, precisamos ser capaz de continuar a enviar a mensagem e ainda assim ficar ouvindo,
-        para isso, precisamos trabalhar com Threads, do qual são capazes de executar o nosso
-        código em blocos*/
-        ;
+
         while(socket.isConnected()){
+
+
             try{
-                String msg = receber.readLine();
 
-                msg = this.forca.addChute(msg,this.palavra);
-                if(forca.palavraFinal(palavra)){
-                    msg = "GANHOU";
+                boolean logado = false;
+                for(GerenciadorCliente cliente : clientes){
+                    if(cliente.username.equals(username)){
+                        logado = true;
+                    }
                 }
-                this.forcaAtual = forca.getForca(palavra, forca.getErros());
+                if(!logado){
+                    clientes.add(this);
+                }
+                if(logado && username.equals(ultimoJogado )){
+                    String msg = receber.readLine();
+                    msg = "BOCA DE SACOLA";
+                    for(GerenciadorCliente cliente : clientes){
+                        if(username.equals(ultimoJogado)){
+                            transmitirUnico(msg,cliente);
+                        }
+                    }
+                }else{
+                    String msg = receber.readLine();
+                    transmitirAll(msg);
+                }
 
-//                if(username.equals(ultimoJogado)){
-                    transmitir(forcaAtual + "\n" + username + ": " + msg);
+//                if(forca.palavraFinal(palavra)){
+//                    msg = "GANHOU";
 //                }
 
             }catch(IOException e){
@@ -70,17 +85,19 @@ public class GerenciadorCliente implements Runnable{
     }
 
     /// se nao for o usuario a vez nao passa
-    private void transmitir(String msg) {
+    private void transmitirAll(String msg) {
         //Para cada cliente no loop do while no método RUN cria-se uma interação
         for(GerenciadorCliente cliente : clientes){
-            try{
-                ultimoJogado = username;
 
-                cliente.enviar.write(msg);//Serealização da mensagem e envio pela rede
-                cliente.enviar.newLine();/*Quando o cliente apertar "enter" o programa entende que a
-                mensagem foi finalizada. Dessa forma, o buffer se adapta ao tamanho da mensagem e
-                não fica sobrecarregado e depois de enviado ele se esvazia automaticamente*/
-                cliente.enviar.flush();//Assim garantimos que o buffer será esvaziado
+            try{
+
+                ultimoJogado = username;
+                String aux = this.forca.addChute(msg, this.palavra);
+                this.forcaAtual = forca.getForca(palavra, forca.getErros());
+                msg = forcaAtual + "\n" + username + ": " + aux;
+                cliente.enviar.write(msg);
+                cliente.enviar.newLine();
+                cliente.enviar.flush();
 
             }catch (IOException e){
                 fechaTudo(socket, receber, enviar);
@@ -88,9 +105,26 @@ public class GerenciadorCliente implements Runnable{
         }
     }
 
+    private void transmitirUnico(String msg, GerenciadorCliente cliente) {
+
+        try{
+            {
+                {
+                    msg = "NAO E VC BOCA DE SACOLA";
+                    cliente.enviar.write(msg);
+                    cliente.enviar.newLine();
+                    cliente.enviar.flush();
+                }
+            }
+        }catch (IOException e){
+            fechaTudo(socket, receber, enviar);
+        }
+
+    }
+
     public void removerCliente(){
         clientes.remove(this);
-        transmitir("Sevidor: "+username+ "Saiu do chat");
+        transmitirAll("Sevidor: "+username+ "Saiu do chat");
     }
 
     public void fechaTudo(Socket socket, BufferedReader receber, BufferedWriter enviar){

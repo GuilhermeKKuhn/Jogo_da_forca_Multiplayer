@@ -5,6 +5,8 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class Client {
     private BufferedReader receber;
@@ -51,6 +53,7 @@ public class Client {
             fechaTudo(socket, receber, enviar);
         }
     }
+
 
     //Responsável por ficar ouvindo as mensagens
     public void receberMsg(){
