@@ -11,10 +11,7 @@ import java.util.concurrent.locks.ReentrantLock;
 public class GerenciadorCliente implements Runnable{
     //Como não é servidor podemos usar o Socket socket
     private Socket socket;
-
-
     public static ArrayList<GerenciadorCliente> clientes = new ArrayList<>();
-    static Semaphore semaforo = new Semaphore(1);
 
     public Forca forca = new Forca();
 
@@ -48,10 +45,7 @@ public class GerenciadorCliente implements Runnable{
     public void run() {
 
         while(socket.isConnected()){
-
-
             try{
-
                 boolean logado = false;
                 for(GerenciadorCliente cliente : clientes){
                     if(cliente.username.equals(username)){
@@ -60,19 +54,20 @@ public class GerenciadorCliente implements Runnable{
                 }
                 if(!logado){
                     clientes.add(this);
-                }
-                if(logado && username.equals(ultimoJogado )){
-                    String msg = receber.readLine();
-                    msg = "BOCA DE SACOLA";
-                    for(GerenciadorCliente cliente : clientes){
-                        if(username.equals(ultimoJogado)){
-                            transmitirUnico(msg,cliente);
-                        }
-                    }
                 }else{
-                    String msg = receber.readLine();
-                    transmitirAll(msg);
+                    if(username.equals(ultimoJogado)) {
+                        transmitirUnico(this);
+                        esperaVez(this);
+                    }else{
+                        String msg = receber.readLine();
+                        transmitirAll(msg);
+                    }
                 }
+
+
+
+
+
 
 //                if(forca.palavraFinal(palavra)){
 //                    msg = "GANHOU";
@@ -85,12 +80,10 @@ public class GerenciadorCliente implements Runnable{
     }
 
     /// se nao for o usuario a vez nao passa
-    private void transmitirAll(String msg) {
+    private synchronized void transmitirAll(String msg) {
         //Para cada cliente no loop do while no método RUN cria-se uma interação
         for(GerenciadorCliente cliente : clientes){
-
             try{
-
                 ultimoJogado = username;
                 String aux = this.forca.addChute(msg, this.palavra);
                 this.forcaAtual = forca.getForca(palavra, forca.getErros());
@@ -98,26 +91,35 @@ public class GerenciadorCliente implements Runnable{
                 cliente.enviar.write(msg);
                 cliente.enviar.newLine();
                 cliente.enviar.flush();
-
             }catch (IOException e){
                 fechaTudo(socket, receber, enviar);
             }
         }
+
     }
 
-    private void transmitirUnico(String msg, GerenciadorCliente cliente) {
-
-        try{
-            {
-                {
-                    msg = "NAO E VC BOCA DE SACOLA";
-                    cliente.enviar.write(msg);
-                    cliente.enviar.newLine();
-                    cliente.enviar.flush();
-                }
-            }
-        }catch (IOException e){
+    private void transmitirUnico(GerenciadorCliente cliente) {
+        try {
+            cliente.enviar.write("ESPERE SUA VEZ...");
+            cliente.enviar.newLine();
+            cliente.enviar.flush();
+        } catch (IOException e) {
             fechaTudo(socket, receber, enviar);
+        }
+    }
+
+    public synchronized void esperaVez(GerenciadorCliente cliente){
+        while (ultimoJogado.equals(this.username)) {
+            try {
+                cliente.enviar.flush();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+            try{
+               Thread.sleep(5000);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
         }
 
     }
@@ -143,3 +145,4 @@ public class GerenciadorCliente implements Runnable{
         }
     }
 }
+

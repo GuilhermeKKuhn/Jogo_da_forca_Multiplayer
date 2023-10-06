@@ -4,13 +4,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Palavra {
-    public String palavraCorreta;
-    public ArrayList<String> letrasCorretas = new ArrayList<>();
-    public ArrayList<String> chutes = new ArrayList<>();
-    public ArrayList<String> acertos = new ArrayList<>();
-    public ArrayList<String> chutesAcertados = new ArrayList<>();
+    public static String palavraCorreta;
+    public static ArrayList<String> letrasCorretas = new ArrayList<>();
+    public static ArrayList<String> chutes = new ArrayList<>();
+    public static ArrayList<String> acertos = new ArrayList<>();
+    public static ArrayList<String> chutesAcertados = new ArrayList<>();
 
-    public ArrayList<Difficulty> dificudade = new ArrayList<>();
+    public static ArrayList<Difficulty> dificudade = new ArrayList<>();
 
     public Palavra() {
     }
