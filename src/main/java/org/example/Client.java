@@ -26,28 +26,20 @@ public class Client {
         }
     }
 
-    /*Esse metódo envia uma mensagem para o gerenciador de clientes que distribuirá a mensagem para outros
-    clientes do arraylist*/
+
     public void enviarMensagem(){
         try{
-            //Quando o enviar mensagem for executado pela primeira vez
             enviar.write(user);
             enviar.newLine();
             enviar.flush();
 
-
-
-            // thread fazer
             Scanner scan = new Scanner(System.in);
             while(socket.isConnected()){
                 String msg = scan.nextLine();
-
                 enviar.write(msg);
                 enviar.newLine();
                 enviar.flush();
             }
-
-
 
         }catch(IOException e){
             fechaTudo(socket, receber, enviar);
@@ -91,78 +83,21 @@ public class Client {
 
     public static void main(String[] args) throws IOException {
         Scanner scan = new Scanner(System.in);
-        boolean flag = true;
-
-
-        while(flag){
-            System.out.println("Digite seu nome de usuário: ");
-            String username = scan.nextLine();
-            Socket socket = new Socket("localHost", 8080);
-            Client cliente = new Client(username, socket);
-            cliente.receberMsg();//Blpoco com thread, sempre irá executar a parte
-            cliente.enviarMensagem();
-
-
-            boolean flagDifi = true;
-            do {
-                String dificuldade = null;
-                try{
-                    System.out.println("escolha uma dificuldade");
-                    System.out.println("1 - Facil");
-                    System.out.println("2 - medio");
-                    System.out.println("3 - dificil");
-                    dificuldade = scan.next();
-                    switch (dificuldade) {
-                        case "1":
-
-                            flagDifi = false;
-                            break;
-                        case "2":
-
-                            flagDifi = false;
-                            break;
-                        case "3":
-
-                            flagDifi = false;
-                            break;
-                        default:
-                            System.out.println("Dificuldade invalida");
-                            flagDifi = true;
-                            break;
-                    }
-                }catch (Exception e){
-                    dificuldade = null;
-                    flagDifi = true;
-                    System.out.println("opção invalida");
-                }
-            }while(flagDifi);
-            boolean flagPlay = true;
-            do{
-                String play = null;
-                System.out.println("1 - Para jogar.");
-                System.out.println("2 - para esperar outro jogador");
-                play = scan.next();
-                switch (play){
-                    case "1" :
-                        flag = false;
-
-                        flagPlay = false;
-                        break;
-                    case "2":
-                        System.out.println(" 2 - Aguardando");
-                        flagPlay = true;
-                        break;
-                    default:
-                        System.out.println(" Valor invalido");
-                        flagPlay = true;
-                        break;
-                }
-            }while(flagPlay);
+        Dificuldade dif = new Dificuldade();
+        // digita nick
+        System.out.println("Digite seu nome de usuário: ");
+        String username = scan.nextLine();
+        System.out.println("Informe a dificuldade");
+        dif.addDiff();
+        // digita dif
+        Socket socket = new Socket("localHost", 8080);
+        Client cliente = new Client(username, socket);
+        cliente.receberMsg();//Blpoco com thread, sempre irá executar a parte
+        cliente.enviarMensagem();
 
 
 
-            System.out.println("usuario invalido!");
-        }
+
 
 
     }

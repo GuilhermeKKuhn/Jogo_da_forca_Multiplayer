@@ -5,18 +5,55 @@ import java.util.List;
 import java.util.Random;
 
 public class Forca {
+    private static String palavraCorreta;
+    private static ArrayList<String> letrasCorretas = new ArrayList<>();
+    private static ArrayList<String> chutes = new ArrayList<>();
+    private static ArrayList<String> acertos = new ArrayList<>();
+    private static ArrayList<String> chutesAcertados = new ArrayList<>();
 
-    private int erros = 0;
 
-    public int getErros() {
-        return erros;
+    public static String getPalavraCorreta() {
+        return palavraCorreta;
     }
 
-    public void setErros(int erros) {
-        this.erros = erros;
+    public static void setPalavraCorreta(String palavraCorreta) {
+        Forca.palavraCorreta = palavraCorreta;
     }
 
-    public void setPalavras(Difficulty diff, Palavra p){
+    public static ArrayList<String> getLetrasCorretas() {
+        return letrasCorretas;
+    }
+
+    public static void setLetrasCorretas(ArrayList<String> letrasCorretas) {
+        Forca.letrasCorretas = letrasCorretas;
+    }
+
+    public static ArrayList<String> getChutes() {
+        return chutes;
+    }
+
+    public static void setChutes(ArrayList<String> chutes) {
+        Forca.chutes = chutes;
+    }
+
+    public static ArrayList<String> getAcertos() {
+        return acertos;
+    }
+
+    public static void setAcertos(ArrayList<String> acertos) {
+        Forca.acertos = acertos;
+    }
+
+    public static ArrayList<String> getChutesAcertados() {
+        return chutesAcertados;
+    }
+
+    public static void setChutesAcertados(ArrayList<String> chutesAcertados) {
+        Forca.chutesAcertados = chutesAcertados;
+    }
+
+
+    public void setPalavras(Difficulty diff){
 
         ArrayList<String> palavras = new ArrayList<>();
 
@@ -54,60 +91,60 @@ public class Forca {
         int num = random.nextInt(palavras.size());
 
         // define palavra completa com base no random
-        p.setPalavraCorreta(palavras.get(num));
+        setPalavraCorreta(palavras.get(num));
 
         //percorre a palavra completa separando por letra
-        for (int i = 0; i < p.getPalavraCorreta().length(); i++) {
+        for (int i = 0; i < getPalavraCorreta().length(); i++) {
             //adiciona na lista de letras convertendo em char
-            p.letrasCorretas.add(String.valueOf(p.getPalavraCorreta().charAt(i)));
+            letrasCorretas.add(String.valueOf(getPalavraCorreta().charAt(i)));
             //adiciona na lista acertada o espaco correspondente
-            p.chutesAcertados.add( "_ ");
+            chutesAcertados.add( "_ ");
         }
 
     }
-    public void setDifficulty(Palavra palavra){
-            //inicia um random e sorteia um valor no dentre o tamanho
+    public void setDifficulty(){
+        //inicia um random e sorteia um valor no dentre o tamanho
 //            Random random = new Random();
 //            int num = random.nextInt(3);
-        this.setPalavras(Difficulty.EASY,palavra);
-            // define palavra completa com base no random
+        this.setPalavras(Difficulty.EASY);
+        // define palavra completa com base no random
 //            this.setPalavras(palavra.dificudade.get(num),palavra);
 //            palavra.dificudade.remove(num);
 //            this.setPalavras(Difficulty.EASY,palavra);
     }
 
-    public String getForca(Palavra p, int erros){
+    public String getForca( int erros){
         //inicia a forca
         PrintForca prtForca = new PrintForca();
         // chama forca para concatenar com as letras acertadas
         String letras  = prtForca.validaForca(erros);
 
         // for percorendo letras acertadas para adicionar na forca
-        for(int i =0; i < p.letrasCorretas.size();i++){
+        for(int i =0; i < letrasCorretas.size();i++){
             //concatena
-            letras += p.chutesAcertados.get(i);
+            letras += chutesAcertados.get(i);
         }
         //retorna a forca ja concatenada com as letras
         return letras;
     }
 
-    private String buscaChutes(Palavra p){
+    private String buscaChutes(){
         String msg = "Chutes realizados ";
-        for(String v : p.chutes){
+        for(String v : chutes){
             msg += v + " - ";
         }
         return msg;
     }
 
 
-    public String addChute(String chute, Palavra p){
+    public String addChute(String chute){
         String msg = "";
         if(chute.length() > 1){
             return msg = "Chute invalido";
         }
         boolean existe = false;
-        if(p.chutes.size() > 0){
-            for(String v: p.chutes) {
+        if(chutes.size() > 0){
+            for(String v: chutes) {
                 if(v.equals(chute)) {
                     existe = true;
                 }
@@ -117,23 +154,22 @@ public class Forca {
             msg = "Esse chute ja foi realizado :" ;
             return msg;
         }else{
-            p.chutes.add(chute);
-            if(atualizaLetras(chute,p)){
-                msg = "ACERTOUuu \n" + buscaChutes(p);
+            chutes.add(chute);
+            if(atualizaLetras(chute)){
+                msg = "ACERTOUuu \n" + buscaChutes();
             }else{
-                setErros(getErros()+1);
-                msg = "ERROUuu \n" + buscaChutes(p) + "\n" ;
+                msg = "ERROUuu \n" + buscaChutes() + "\n" ;
 
             }
         }
         return msg;
     }
-    private Boolean atualizaLetras(String letra, Palavra p){
+    private Boolean atualizaLetras(String letra){
         int cont = 0;
         Boolean flag = false;
-        for(String v: p.letrasCorretas){
+        for(String v: letrasCorretas){
             if(v.equals(letra)){
-                p.chutesAcertados.set(cont, letra + ' ');
+                chutesAcertados.set(cont, letra + ' ');
                 flag = true;
             }
             cont++;
@@ -141,12 +177,11 @@ public class Forca {
         return flag;
     }
 
-    public boolean palavraFinal(Palavra p){
+    public boolean palavraFinal(){
         String palavra = "";
-        for(String v : p.letrasCorretas){
+        for(String v : letrasCorretas){
             palavra += v.replace(" ","");
         }
-        return palavra.equals(p.palavraCorreta) ? true : false;
+        return palavra.equals(palavraCorreta) ? true : false;
     }
-
 }

@@ -1,6 +1,6 @@
 package org.example;
 
-import java.io.IOException;
+import java.io.*;
 import java.lang.reflect.Array;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -22,10 +22,9 @@ public class Servidor {
 
             //Como teremos vários
             GerenciadorCliente gc = new GerenciadorCliente(conexao);
-            /*Um thread pode receber uma objeto que contenha a interface RUNNABLE, a thread ficará
-             * responsável por rodar essa instância de forma separada e independente do resto do código*/
             Thread t = new Thread(gc);
             t.start();
+
         }
     }
 
@@ -36,9 +35,20 @@ public class Servidor {
     }
 
     public static void main(String[] args) throws IOException {
+//        ServerSocket serverSocket = new ServerSocket(8080);//Seto a porta
+//        Servidor servidor = new Servidor(serverSocket);//Instâncio um Objeto
+//        System.out.println("Servidor subiu!");
+//        servidor.iniciarSessao();//Chamo o método de iniciar a sessão
+//        Socket socket = serverSocket.accept();
+//        BufferedReader entrada = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+//
+//        String msg = (String) entrada.readLine();
+//        BufferedWriter saida = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+
         ServerSocket socket = new ServerSocket(8080);//Seto a porta
         Servidor servidor = new Servidor(socket);//Instâncio um Objeto
         System.out.println("Servidor subiu!");
         servidor.iniciarSessao();//Chamo o método de iniciar a sessão
+
     }
 }

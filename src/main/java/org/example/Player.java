@@ -5,20 +5,20 @@ import java.util.List;
 
 public class Player {
     private String nome;
-    private String ip;
     private int vidas;
     private double pontos;
+    private int erros;
+    private Forca forca = new Forca();
 
+    public Player(String nome) {
 
-    public Player(String nome, String ip) {
         this.nome = nome;
-        this.ip = ip;
         this.vidas = 5;
         this.pontos = 0;
     }
 
-    public Player() {
-    }
+    public Player() {}
+    public Forca getForca() {return forca;}
 
     public String getNome() {
         return nome;
@@ -26,14 +26,6 @@ public class Player {
 
     public void setNome(String nome) {
         this.nome = nome;
-    }
-
-    public String getIp() {
-        return ip;
-    }
-
-    public void setIp(String ip) {
-        this.ip = ip;
     }
 
     public int getVidas() {
@@ -52,4 +44,7 @@ public class Player {
         this.pontos = pontos;
     }
 
+    public int getErros() {return erros;}
+
+    public void setErros(int erros) {this.erros = erros;}
 }
