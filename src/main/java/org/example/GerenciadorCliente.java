@@ -42,7 +42,7 @@ public class GerenciadorCliente implements Runnable{
                 jogadorVez = playersAtivos.get(cont);
                 transmitirAll("Forca do " + jogadorVez.player.getNome() + "\n" +
                         jogadorVez.player.getForca().getForca(jogadorVez.player.getErros(), palavra)
-                        + "\n" + jogadorVez.player.getNome() +" Informe uma letra: ");
+                        + "\n" + jogadorVez.player.getNome() +" Informe uma letra: \nou digite dica ");
 
             }
         }catch (IOException e){
@@ -68,52 +68,76 @@ public class GerenciadorCliente implements Runnable{
 
 
                 if(jogadorVez.player.getNome().equals(this.player.getNome())) {
-                    String ret = jogadorVez.player.getForca().addChute(receber.readLine(), palavra);
-                    //chama a forca do player
-                    msgAtual = "Forca do " + jogadorVez.player.getNome() + "\n" +
-                            jogadorVez.player.getForca().getForca(jogadorVez.player.getErros(), palavra);
 
-                    //concatena a forca com o player e o retorno
-                    msgAtual += "\n" + jogadorVez.player.getNome() + ": " + ret;
+                    String valor = receber.readLine();
+                    if (valor.equalsIgnoreCase("dica") && palavra.temDica()) {
 
-                    //trasmite
-
-                    if (ret.contains("ERROUuu")) {
-                        jogadorVez.player.setErros(jogadorVez.player.getErros() + 1);
+                        transmitirAll(palavra.getDica());
                         jogadorVez.player.setVidas(jogadorVez.player.getVidas() - 1);
+
                         if (jogadorVez.player.getVidas() <= 0) {
                             transmitirAll("Jogador " + jogadorVez.player.getNome() + " perdeu, esta fora desta rodada");
                             transmitirAll("Jogador da Vez : " + jogadorVez.player.getNome());
                             playersAtivos.remove(jogadorVez);
-//                            if(cont < playersAtivos.size()-1){
-//                                this.cont++;
-//                            }else{
-//                                cont = 0;
-//                            }
+                            if(cont < playersAtivos.size()-1){
+                                this.cont++;
+                            }else{
+                                cont = 0;
+                            }
                         }
-                    } else {
-                        jogadorVez.player.setPontos(player.getPontos() + 10);
-                        if (jogadorVez.player.getForca().palavraFinal(palavra)) {
-                            transmitirAll(jogadorVez.player.getNome() + " Acertou a palavra e ganhou a rodada !");
-                            jogadorVez.player.setPontos(player.getPontos() + 20);
-                            String msg = ("Acompanhe a pontuacao\n");
-                            for (GerenciadorCliente cliente : clientes) {
-                                msg += cliente.player.getNome() + " com o total de " + cliente.player.getPontos() + ";\n";
-                            }
-                            transmitirAll(msg);
-                            for(GerenciadorCliente cliente : clientes){
-                                playersAtivos.remove(cliente);
-                            }
 
-                        }
-                    }
-                    if (cont < playersAtivos.size() - 1 ) {
-                        cont++;
                     } else {
-                        cont = 0;
+
+                        String ret = jogadorVez.player.getForca().addChute(valor, palavra);
+                        //chama a forca do player
+                        msgAtual = "Forca do " + jogadorVez.player.getNome() + "\n" +
+                                jogadorVez.player.getForca().getForca(jogadorVez.player.getErros(), palavra);
+
+                        //concatena a forca com o player e o retorno
+                        msgAtual += "\n" + jogadorVez.player.getNome() + ": " + ret;
+
+                        //trasmite
+
+                        if (ret.contains("ERROUuu")) {
+                            jogadorVez.player.setErros(jogadorVez.player.getErros() + 1);
+                            jogadorVez.player.setVidas(jogadorVez.player.getVidas() - 1);
+                            if (jogadorVez.player.getVidas() <= 0) {
+                                transmitirAll("Jogador " + jogadorVez.player.getNome() + " perdeu, esta fora desta rodada");
+                                transmitirAll("Jogador da Vez : " + jogadorVez.player.getNome());
+                                playersAtivos.remove(jogadorVez);
+                            if(cont < playersAtivos.size()-1){
+                                this.cont++;
+                            }else{
+                                cont = 0;
+                            }
+                            }
+                        } else {
+                            jogadorVez.player.setPontos(player.getPontos() + 10);
+                            if (jogadorVez.player.getForca().palavraFinal(palavra)) {
+                                transmitirAll(jogadorVez.player.getNome() + " Acertou a palavra e ganhou a rodada !");
+                                jogadorVez.player.setPontos(player.getPontos() + 20);
+                                String msg = ("Acompanhe a pontuacao\n");
+                                for (GerenciadorCliente cliente : clientes) {
+                                    msg += cliente.player.getNome() + " com o total de " + cliente.player.getPontos() + ";\n";
+                                }
+                                transmitirAll(msg);
+                                for(GerenciadorCliente cliente : clientes){
+                                    playersAtivos.remove(cliente);
+                                }
+
+                            }
+                        }
+                        if(!ret.contains("Esse chute ja foi realizado :")){
+                            if (cont < playersAtivos.size() - 1 ) {
+                                cont++;
+                            } else {
+                                cont = 0;
+                            }
+                        }
+                        jogadorVez = playersAtivos.get(cont);
+                        transmitirAll(msgAtual + "\n" + jogadorVez.player.getNome() +" Informe uma letra: ");
                     }
-                    jogadorVez = playersAtivos.get(cont);
-                    transmitirAll(msgAtual + "\n" + jogadorVez.player.getNome() +" Informe uma letra: ");
+
                 }else{
 //                  receber.skip(receber.ready() ? receber.readLine().length() : 0); funciona mas pula linha
 
@@ -166,6 +190,8 @@ public class GerenciadorCliente implements Runnable{
             e.printStackTrace();
         }
     }
+
+
 
 }
 

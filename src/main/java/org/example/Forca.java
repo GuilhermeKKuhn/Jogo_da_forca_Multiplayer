@@ -40,13 +40,13 @@ public class Forca {
         boolean existe = false;
         if(palavra.chutes.size() > 0){
             for(String v: palavra.chutes) {
-                if(v.equals(chute)) {
+                if(v.equalsIgnoreCase(chute)) {
                     existe = true;
                 }
             }
         }
-        if(existe == true){
-            msg = "Esse chute ja foi realizado :" ;
+        if(existe){
+            msg = "Esse chute ja foi realizado :\n" + buscaChutes(palavra)+"\n";
             return msg;
         }else{
             palavra.chutes.add(chute);
@@ -63,7 +63,7 @@ public class Forca {
         int cont = 0;
         Boolean flag = false;
         for(String v: palavra.letrasCorretas){
-            if(v.equals(letra)){
+            if(v.equalsIgnoreCase(letra)){
                 palavra.chutesAcertados.set(cont, letra + ' ');
                 flag = true;
             }
@@ -77,6 +77,6 @@ public class Forca {
         for(String v : p.chutesAcertados){
             palavra += v.replace(" ","");
         }
-        return palavra.equals(p.palavraCorreta) ? true : false;
+        return palavra.equalsIgnoreCase(p.palavraCorreta.getPalavra());
     }
 }
