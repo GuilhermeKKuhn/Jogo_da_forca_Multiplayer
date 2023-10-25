@@ -4,8 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Player {
+    public static Difficulty dificuldades;
     private String nome;
-    private int vidas;
+    private int vidas = 5;
     private double pontos;
     private int erros;
     private Forca forca = new Forca();

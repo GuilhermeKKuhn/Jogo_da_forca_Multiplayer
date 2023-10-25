@@ -33,14 +33,13 @@ public class Client {
             enviar.newLine();
             enviar.flush();
 
-            Scanner scan = new Scanner(System.in);
             while(socket.isConnected()){
+                Scanner scan = new Scanner(System.in);
                 String msg = scan.nextLine();
                 enviar.write(msg);
                 enviar.newLine();
                 enviar.flush();
             }
-
         }catch(IOException e){
             fechaTudo(socket, receber, enviar);
         }
@@ -83,22 +82,34 @@ public class Client {
 
     public static void main(String[] args) throws IOException {
         Scanner scan = new Scanner(System.in);
-        Dificuldade dif = new Dificuldade();
         // digita nick
         System.out.println("Digite seu nome de usuário: ");
         String username = scan.nextLine();
-        System.out.println("Informe a dificuldade");
-        dif.addDiff();
+
+
+        System.out.println("Digite play para iniciar a espera de jogadores, 2 players obrigatorio");
         // digita dif
         Socket socket = new Socket("localHost", 8080);
         Client cliente = new Client(username, socket);
         cliente.receberMsg();//Blpoco com thread, sempre irá executar a parte
         cliente.enviarMensagem();
 
-
-
-
-
-
     }
+
+//    public void addDiff(){
+//        Scanner scan = new Scanner(System.in);
+//        boolean flag = false;
+//        do{
+//            if(flag){
+//                System.out.println("Dificuldade invalida! tente novamente");
+//            }
+//            System.out.println("Escolha uma dificuldade:\n1 - Facil\n2 - Medio\n3 - Dificil");
+//            String resp = scan.next();
+//            if(!(resp.equals("1") || resp.equals("2") || resp.equals("3"))){
+//                flag = true;
+//            }else{
+//                dificuldades.add(resp.equals("1") ? Difficulty.EASY : resp.equals("2") ? Difficulty.MEDIUM : Difficulty.HARD);
+//            }
+//        }while (flag);
+//    }
 }

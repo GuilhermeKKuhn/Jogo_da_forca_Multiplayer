@@ -12,11 +12,14 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 public class GerenciadorCliente implements Runnable{
-    public Dificuldade dif = new Dificuldade();
+
+    public static Palavra palavra;
 
     //Como não é servidor podemos usar o Socket socket
     public static ArrayList<GerenciadorCliente> clientes = new ArrayList<>();
-    public static int cont;
+    public static int start;
+    public static ArrayList<GerenciadorCliente> playersAtivos = new ArrayList<>();
+    public static int cont = 0;
     private static String msgAtual;
     public static GerenciadorCliente jogadorVez;
     private Socket socket;
@@ -33,7 +36,15 @@ public class GerenciadorCliente implements Runnable{
             //Ao atribuir um valor para a String username, ela será lida pelo buffer
             player = new Player(receber.readLine()) ;
             clientes.add(this);
+            playersAtivos.add(this);
+            if(jogadorVez == null){
+                palavra = new Palavra();
+                jogadorVez = playersAtivos.get(cont);
+                transmitirAll("Forca do " + jogadorVez.player.getNome() + "\n" +
+                        jogadorVez.player.getForca().getForca(jogadorVez.player.getErros(), palavra)
+                        + "\n" + jogadorVez.player.getNome() +" Informe uma letra: ");
 
+            }
         }catch (IOException e){
             fechaTudo(socket, receber, enviar);
         }
@@ -44,37 +55,74 @@ public class GerenciadorCliente implements Runnable{
 
         while(socket.isConnected()){
             try{
-//                while(clientes.size() < 1){
-//                    try {
-//                        transmitirAll("Aguardando jogadores " + clientes.size() + " de 3");
-//                        Thread.sleep(10000);
-//                    } catch (InterruptedException e) {
-//                        throw new RuntimeException(e);
-//                    }
-//                }
-                jogadorVez = clientes.get(cont);
 
-                if(jogadorVez.player.getNome().equals(this.player.getNome())){
-                    transmitirAll("Jogador da Vez : " + jogadorVez.player.getNome());
-                    String ret = jogadorVez.player.getForca().addChute(receber.readLine());
-                    if(ret.contains("ERROUuu")){
-                        jogadorVez.player.setErros(jogadorVez.player.getErros() + 1);
+                while(clientes.size() < 2){
+                    try {
+
+                        transmitirAll("Aguardando jogadores " + clientes.size() + " de 3");
+                        Thread.sleep(5000);
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
                     }
-                    msgAtual = "Forca do " + jogadorVez.player.getNome() + " " +
-                            jogadorVez.player.getForca().getForca(jogadorVez.player.getErros());
+                }
+
+
+                if(jogadorVez.player.getNome().equals(this.player.getNome())) {
+                    String ret = jogadorVez.player.getForca().addChute(receber.readLine(), palavra);
+                    //chama a forca do player
+                    msgAtual = "Forca do " + jogadorVez.player.getNome() + "\n" +
+                            jogadorVez.player.getForca().getForca(jogadorVez.player.getErros(), palavra);
+
+                    //concatena a forca com o player e o retorno
                     msgAtual += "\n" + jogadorVez.player.getNome() + ": " + ret;
-                    transmitirAll(msgAtual);
-                    if(cont < clientes.size()-1){
-                        this.cont++;
-                    }else{
+
+                    //trasmite
+
+                    if (ret.contains("ERROUuu")) {
+                        jogadorVez.player.setErros(jogadorVez.player.getErros() + 1);
+                        jogadorVez.player.setVidas(jogadorVez.player.getVidas() - 1);
+                        if (jogadorVez.player.getVidas() <= 0) {
+                            transmitirAll("Jogador " + jogadorVez.player.getNome() + " perdeu, esta fora desta rodada");
+                            transmitirAll("Jogador da Vez : " + jogadorVez.player.getNome());
+                            playersAtivos.remove(jogadorVez);
+//                            if(cont < playersAtivos.size()-1){
+//                                this.cont++;
+//                            }else{
+//                                cont = 0;
+//                            }
+                        }
+                    } else {
+                        jogadorVez.player.setPontos(player.getPontos() + 10);
+                        if (jogadorVez.player.getForca().palavraFinal(palavra)) {
+                            transmitirAll(jogadorVez.player.getNome() + " Acertou a palavra e ganhou a rodada !");
+                            jogadorVez.player.setPontos(player.getPontos() + 20);
+                            String msg = ("Acompanhe a pontuacao\n");
+                            for (GerenciadorCliente cliente : clientes) {
+                                msg += cliente.player.getNome() + " com o total de " + cliente.player.getPontos() + ";\n";
+                            }
+                            transmitirAll(msg);
+                            for(GerenciadorCliente cliente : clientes){
+                                playersAtivos.remove(cliente);
+                            }
+
+                        }
+                    }
+                    if (cont < playersAtivos.size() - 1 ) {
+                        cont++;
+                    } else {
                         cont = 0;
                     }
+                    jogadorVez = playersAtivos.get(cont);
+                    transmitirAll(msgAtual + "\n" + jogadorVez.player.getNome() +" Informe uma letra: ");
                 }else{
 //                  receber.skip(receber.ready() ? receber.readLine().length() : 0); funciona mas pula linha
+
                     while (receber.ready()) {
                         receber.readLine();
                     }
                 }
+
+
             }catch(IOException e){
                 fechaTudo(socket, receber, enviar);
             }
@@ -85,7 +133,7 @@ public class GerenciadorCliente implements Runnable{
     /// se nao for o usuario a vez nao passa
     public  void transmitirAll(String msg) {
         //Para cada cliente no loop do while no método RUN cria-se uma interação
-        for(GerenciadorCliente cliente : clientes){
+        for(GerenciadorCliente cliente : playersAtivos){
             try{
                 cliente.enviar.write(msg);
                 cliente.enviar.newLine();
@@ -99,7 +147,7 @@ public class GerenciadorCliente implements Runnable{
     }
 
     public void removerCliente(){
-        clientes.remove(this);
+        playersAtivos.remove(this);
         transmitirAll("Sevidor: "+ player.getNome() + "Saiu do chat");
     }
 
